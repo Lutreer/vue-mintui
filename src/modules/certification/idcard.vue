@@ -22,7 +22,7 @@
         </div>
         <div class="normal_infon">
             <img src="../../assets/img/idcard-shield.png" alt="">
-            信息仅用于身份验证，诸葛信用管家保障您的信息安全。
+            信息仅用于身份验证，XXXXXX保障您的信息安全。
         </div>
 
         <div class="btns">
