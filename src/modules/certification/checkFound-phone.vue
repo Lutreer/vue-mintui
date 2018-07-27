@@ -1,0 +1,139 @@
+<template>
+    <div class="container">
+      <div class="card">
+          <div class="bank_name">
+            <div class="select_bank">请选择发卡行/卡类型 ></div>
+            <!-- <div class="selected">
+              <img src="" alt="">农业银行卡信用卡
+            </div> -->
+          </div>
+          <div class="bank_num">{{cardNum | bankNumbber4}}</div>
+          <div class="bank_name_data">
+            <div class="user_name">持卡人：路鲲鹏</div>
+            <div class="user_data">有效期：{{date | cardExpiry}}</div>
+          </div>
+      </div>
+      <div class="input_contents">
+          <div class="input_content">
+        <p>有效期</p>
+        <div class="field">
+          <mt-field placeholder="输入有效期(年/月)" :attr="{maxlength:4}" v-model="date"></mt-field>
+        </div>
+        
+      </div>
+      <div class="input_content">
+        <p>卡验证码</p>
+        <div class="field">
+          <mt-field placeholder="输入卡验证码(后三位)" :attr="{maxlength:3}" v-model="code"></mt-field>
+        </div>
+        
+      </div>
+      </div>
+
+
+      <div class="next" @click="next">下一步</div>
+    </div>
+    
+</template>
+<script>
+export default {
+  name: "certification_checkFound-card",
+  data() {
+    return {
+      cardNum: '',
+      date: '',
+      code: ''
+    };
+  },
+  computed: {
+
+  },
+  methods: {
+    next(){
+      this.$router.push(`/certification/checkFound-phone/${this.cardNum}/${this.date}/${this.code}`)
+    }
+  },
+  mounted() {
+    this.cardNum = this.$route.params.number
+    this.$loading.close();
+  }
+};
+</script>
+<style lang="scss" scoped>
+@import "../../assets/css/fun.scss";
+.container {
+  width: 100%;
+  height: 100%;
+  background-color: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  .card {
+    padding: px2rem(10px) px2rem(35px);
+    width: px2rem(680px);
+    height: px2rem(370px);
+    border-radius: px2rem(15px);
+    margin-top: px2rem(30px);
+    margin-bottom: px2rem(30px);
+    background: linear-gradient(rgb(253, 191, 91), #fe9539);
+    justify-content: space-around;
+    display: flex;
+    flex-direction: column;
+    .bank_name {
+      color: #fff6e5;
+      font-size: px2rem(28px);
+      .select_bank {
+      }
+    }
+    .bank_num {
+        color: #fed2a3;
+      font-size: px2rem(44px);
+      text-align: center;
+      font-weight: 800;
+    }
+    .bank_name_data {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      color: #fed2a3;
+      font-size: px2rem(28px);
+      .user_name {
+      }
+      .user_data {
+          color: #fff;
+      }
+    }
+  }
+  .input_contents{
+      display: flex;
+      padding: px2rem(0px) px2rem(15px) px2rem(0px) px2rem(15px);
+      
+.input_content {
+    margin: px2rem(0px) px2rem(15px) px2rem(0px) px2rem(15px);
+    width: 100%;
+    align-self: flex-start;
+    p{
+      color: #fed2a3;
+      font-size: px2rem(28px);
+      margin-left: px2rem(40px);
+    }
+    .field{
+      padding: px2rem(15px) px2rem(0px) px2rem(15px) px2rem(0px);
+      border-bottom: 1px solid #eee;
+    }
+  }
+  }
+  
+
+  .next{
+    width: 100%;
+    text-align: center;
+    position: absolute;
+    bottom: 0px;
+    color: #fff;
+    height: px2rem(80px);
+    line-height: px2rem(80px);
+    background-color: #fec14d;
+  }
+}
+</style>
