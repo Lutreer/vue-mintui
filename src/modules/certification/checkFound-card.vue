@@ -2,22 +2,22 @@
     <div class="container">
       <div class="card">
           <div class="bank_name">
-            <div class="select_bank">请选择发卡行/卡类型 ></div>
+            <!-- <div class="select_bank">请选择发卡行/卡类型 ></div> -->
             <!-- <div class="selected">
               <img src="" alt="">农业银行卡信用卡
             </div> -->
           </div>
           <div class="bank_num">{{cardNum | bankNumbber4}}</div>
           <div class="bank_name_data">
-            <div class="user_name">持卡人：路鲲鹏</div>
-            <div class="user_data">有效期：xx/23</div>
+            <div class="user_name">持卡人：{{userName}}</div>
+            <div class="user_data">有效期：xx/xx</div>
           </div>
       </div>
       <div class="input_content">
         <p>补全卡号</p>
         <div class="field">
           <mt-field placeholder="请输入银行卡号" :attr="{maxlength:19}" v-model="cardNum">
-            <img src="../../assets/img/common/camera.png" height="18px" width="22px">
+            <!-- <img src="../../assets/img/common/camera.png" height="18px" width="22px"> -->
           </mt-field>
         </div>
         
@@ -29,17 +29,24 @@
     
 </template>
 <script>
+import Validator from 'utils/validator'
 export default {
   name: "certification_checkFound-card",
   data() {
     return {
+      userName: this.$getUserInfo().userName,
       cardNum: ''
     };
   },
   computed: {},
   methods: {
     next(){
-      this.$router.push(`/sub/certification_checkFound-date/${this.cardNum}`)
+      if(Validator.bankNum(this.cardNum).status){
+        this.$router.push(`/sub/certification_checkFound-date/${this.cardNum}`)
+      }else {
+        this.$toast("请输入正确的卡号")
+      }
+      
     }
   },
   mounted() {
@@ -48,7 +55,7 @@ export default {
 };
 </script>
 <style lang="scss" scoped>
-@import "../../assets/css/fun.scss";
+@import "../../assets/css/common.scss";
 .container {
   width: 100%;
   height: 100%;
@@ -115,7 +122,7 @@ export default {
     color: #fff;
     height: px2rem(80px);
     line-height: px2rem(80px);
-    background-color: #fec14d;
+    background-color: $baseColor;
   }
 }
 </style>

@@ -1,8 +1,8 @@
 <template>
     <div class="sub_container">
-        <mt-header :title="header.title" fixed :style="{backgroundColor: header.backgroundColor || '#fff', color: header.color || 'black'}">
+        <mt-header :title="header.title" fixed :style="{borderBottom: header.borderBottom || 'none', backgroundColor: header.backgroundColor || '#fff', color: header.color || 'black'}">
             <mt-button icon="back" slot="left" @click="goBack"></mt-button>
-            <!-- <mt-button icon="more" slot="right"></mt-button> -->
+            <!-- <mt-button slot="right">分享</mt-button> -->
         </mt-header>
         <div :class="['sub_content', header.jointMode || 'conjoint']">
             <router-view></router-view>
@@ -32,7 +32,7 @@ export default {
 };
 </script>
 <style lang="scss" scoped>
-@import "../assets/css/fun.scss";
+@import "../assets/css/common.scss";
 .sub_container {
     height: 100%;
   .sub_content {

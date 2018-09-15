@@ -14,15 +14,15 @@
         </div>
         <div class="fields">
             <div class="field">
-                <mt-field label="真实姓名" placeholder="请输入本人真实姓名"></mt-field>
+                <mt-field label="真实姓名" placeholder="请输入本人真实姓名" :attr="{maxlength: 30}" v-model="userName"></mt-field>
             </div>
             <div class="field" style="border-bottom:0px">
-                <mt-field label="身份证号码" placeholder="请输入本人真实身份证号" type="number" :attr="{maxlength:18}"></mt-field>
+                <mt-field label="身份证号码" placeholder="请输入本人真实身份证号" type="number" :attr="{maxlength:18}" v-model="idcardNum"></mt-field>
             </div>
         </div>
         <div class="normal_infon">
             <img src="../../assets/img/idcard-shield.png" alt="">
-            信息仅用于身份验证，XXXXXX保障您的信息安全。
+            信息仅用于身份验证，诸葛信用管家保障您的信息安全。
         </div>
 
         <div class="btns">
@@ -32,31 +32,62 @@
     </div>
 </template>
 <script>
+import Validator from "utils/validator";
+import UserService from "services/user";
+import CONSTS from "config/CONST";
 export default {
   name: "certification_idcard",
   data() {
     return {
-
-    }
+      userName: "",
+      idcardNum: ""
+    };
   },
   methods: {
     nextStep() {
-      this.$router.push("/sub/certification_savingscard");
+      if (this.$_.isEmpty(this.userName)) {
+        this.$toast("请输入姓名");
+        return;
+      }
+      if (this.$_.isEmpty(this.idcardNum + "")) {
+        this.$toast("请输入身份证号");
+        return;
+      }
+      if (!Validator.idcard(this.idcardNum).status) {
+        this.$toast("请输入正确的身份证号");
+        return;
+      }
+      this.$loading.open({
+        spinnerType: "triple-bounce"
+      });
+      UserService.certificateName({
+        userName: this.userName,
+        cardNo: this.idcardNum
+      })
+        .then(res => {
+          let userInfo = this.$getUserInfo();
+          userInfo.cardNo = this.idcardNum;
+          userInfo.userName = this.userName;
+          localStorage.setItem(
+            CONSTS.LOCALSTORAGE.USER_INFO,
+            JSON.stringify(userInfo)
+          );
+          this.$router.push("/sub/certification_savingscard");
+        })
+        .catch(err => {
+          this.$loading.close();
+          this.$toast("操作失败");
+        });
     }
   },
   mounted() {
-    this.$nextTick(() => {
-      setTimeout(() => {
-        this.$loading.close();
-        this.show = true;
-      }, 1000);
-    });
+    this.$loading.close();
   }
 };
 </script>
 
 <style lang="scss" scoped>
-@import "../../assets/css/fun.scss";
+@import "../../assets/css/common.scss";
 .idcards {
   display: flex;
   justify-content: space-around;
@@ -101,7 +132,7 @@ export default {
   padding: 0 px2rem(38px);
   margin-top: px2rem(50px);
   button {
-    background-color: #fec14d;
+    background-color: $baseColor;
     color: #ffffff;
   }
 }

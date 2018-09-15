@@ -37,7 +37,7 @@ export default {
 };
 </script>
 <style lang="scss" scoped>
-@import "../../assets/css/fun.scss";
+@import "../../assets/css/common.scss";
 .uni_popup_box {
   position: fixed;
   top: 0px;

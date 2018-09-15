@@ -1,14 +1,15 @@
 <template>
     <div>
-      card
-      <p v-for="(item, index) in items" :key="index">{{item}}</p>
+      <Developing></Developing>
     </div>
 </template>
 <script>
+import Developing from '../../components/error/Developing.vue'
 export default {
   name:'index_card',
   methods: {
   },
+  components: {Developing},
   data() {
     return {
     };
@@ -25,7 +26,7 @@ export default {
 };
 </script>
 <style lang="scss" scope>
-    @import "../../assets/css/fun.scss";
+    @import "../../assets/css/common.scss";
     .fonts{
         border-top: px2rem(1px) solid black;
         padding: px2rem(75px);

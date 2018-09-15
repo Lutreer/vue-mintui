@@ -4,7 +4,12 @@ import router from './router'
 import store from './store'
 import axios from 'axios'
 import _ from 'lodash'
+import CONSTS from './config/CONST'
 import './utils/filter'
+
+import VueAwesomeSwiper from 'vue-awesome-swiper'
+import 'swiper/dist/css/swiper.css'
+Vue.use(VueAwesomeSwiper)
 
 
 import 'static/js/flexible.js'
@@ -20,6 +25,10 @@ Vue.prototype.$loading = Indicator
 Vue.prototype.$toast = Toast
 Vue.prototype.$http = axios
 Vue.prototype.$_ = _
+Vue.prototype.$CONSTS = CONSTS
+Vue.prototype.$getUserInfo = function(){
+  return JSON.parse(localStorage.getItem(CONSTS.LOCALSTORAGE.USER_INFO) || {})
+}
 
 
 import * as TYPES from './store/mutation-type'
@@ -27,18 +36,33 @@ router.beforeEach((to, from, next) => {
   Indicator.open({
     spinnerType: 'triple-bounce'
   })
+  next()
+})
+router.afterEach((to, from) => {
   let header = {
     title: to.meta.title,
     color: to.meta.header && to.meta.header.color,
+    borderBottom: to.meta.header && to.meta.header.borderBottom,
     backgroundColor: to.meta.header && to.meta.header.backgroundColor,
     rightContent: to.meta.header && to.meta.header.rightContent,
     jointMode: to.meta.header && to.meta.header.jointMode,
     display: to.meta.header && to.meta.header.display
   }
-  console.log(store)
   store.commit(TYPES.COMMON.SET_HEADER, header)
-  next()
+  if(to.meta.tab){
+    store.commit(TYPES.COMMON.SET_TAB, to.meta.tab)
+  }
 })
+
+// 微信相关
+// wx.config({
+//   debug: true, 
+//   jsApiList: []
+// });
+// window.wxjs_is_wkwebview = true
+// wx.hideAllNonBaseMenuItem();
+
+// 微信相关 end
 
 new Vue({
   el: '#app',

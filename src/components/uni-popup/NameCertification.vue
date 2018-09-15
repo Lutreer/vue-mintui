@@ -39,7 +39,7 @@ export default {
 };
 </script>
 <style lang="scss" scoped>
-@import "../../assets/css/fun.scss";
+@import "../../assets/css/common.scss";
 .name_certification_content {
   width: px2rem(475px);
   height: px2rem(680px);
@@ -72,7 +72,7 @@ export default {
       padding: px2rem(15px) 0;
       font-size: px2rem(26px);
       border-radius: px2rem(40px);
-      background-color: #fec14d;
+      background-color: $baseColor;
       color: #ffffff;
       box-shadow: 0px px2rem(4px) px2rem(4px) #ffe0ab;
       text-align: center;

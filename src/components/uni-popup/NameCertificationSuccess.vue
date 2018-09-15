@@ -1,8 +1,8 @@
 <template>
-    <cover :showOut.sync="show" :showClose="false">
+    <cover :showOut.sync="show" :showClose="true">
         <div class="name_certification_content">
             <div class="tips"></div>
-            <mt-button class="btn" size="small" @click="share">分享发红包</mt-button>
+            <!-- <mt-button class="btn" size="small" @click="share">分享发红包</mt-button> -->
         </div>
     </cover>
 </template>
@@ -38,7 +38,7 @@ export default {
 };
 </script>
 <style lang="scss" scoped>
-@import "../../assets/css/fun.scss";
+@import "../../assets/css/common.scss";
 .name_certification_content {
   width: px2rem(475px);
   background-image: url("../../assets/img/modal-name-certification-success.png");
@@ -59,7 +59,7 @@ export default {
     height: auto;
     padding: px2rem(15px) px2rem(45px);
     font-size: px2rem(26px);
-    background-color: #fec14d;
+    background-color: $baseColor;
     color: #ffffff;
     }
 }

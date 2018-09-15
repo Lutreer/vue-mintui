@@ -137,3 +137,10 @@ video {
   clear: both;
   font-size: 0;
 }
+
+button {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}

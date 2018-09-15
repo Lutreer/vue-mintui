@@ -1,16 +1,20 @@
 import axios from 'axios'
 import router from '../router'
 import CONSTS from '../config/CONST'
+import qs from 'qs'
 import {
   Toast
 } from 'mint-ui'
 
 // 请求拦截器
-axios.defaults.headers.common['Content-Type'] = 'application/json;charset=UTF-8'
+// axios.defaults.headers['Content-Type'] = 'application/x-www-form-urlencoded'
+// axios.defaults.headers['Content-Type'] = 'multipart/form-data'
+// axios.defaults.headers['Content-Type'] = 'application/json'
+// axios.defaults.timeout = 15000;
 axios.interceptors.request.use(request => {
   // do something before request
-  debugger
-  request.headers.common[CONSTS.LOCALSCORAGE.ACCESS_TOKEN.toString()] = localStorage.getItem(CONSTS.LOCALSCORAGE.ACCESS_TOKEN) || ''
+  request.data = qs.stringify(request.data)
+  request.headers.common[CONSTS.LOCALSTORAGE.ACCESS_TOKEN.toString()] = localStorage.getItem(CONSTS.LOCALSTORAGE.ACCESS_TOKEN) || ''
   return request
 }, error => {
   Promise.reject(error)

@@ -2,14 +2,14 @@
     <div class="container">
       <div class="card">
           <div class="bank_name">
-            <div class="select_bank">请选择发卡行/卡类型 ></div>
+            <!-- <div class="select_bank">请选择发卡行/卡类型 ></div> -->
             <!-- <div class="selected">
               <img src="" alt="">农业银行卡信用卡
             </div> -->
           </div>
           <div class="bank_num">{{cardNum | bankNumbber4}}</div>
           <div class="bank_name_data">
-            <div class="user_name">持卡人：路鲲鹏</div>
+            <div class="user_name">持卡人：{{userName}}</div>
             <div class="user_data">有效期：{{date | cardExpiry}}</div>
           </div>
       </div>
@@ -17,7 +17,7 @@
           <div class="input_content">
         <p>有效期</p>
         <div class="field">
-          <mt-field placeholder="输入有效期(年/月)" :attr="{maxlength:4}" v-model="date"></mt-field>
+          <mt-field placeholder="输入有效期(月年)" :attr="{maxlength:4}" v-model="date"></mt-field>
         </div>
         
       </div>
@@ -36,10 +36,13 @@
     
 </template>
 <script>
+import Validator from '../../utils/validator'
 export default {
   name: "certification_checkFound-card",
   data() {
     return {
+      userName: this.$getUserInfo().userName || '',
+
       cardNum: '',
       date: '',
       code: ''
@@ -50,7 +53,20 @@ export default {
   },
   methods: {
     next(){
-      this.$router.push(`/certification/checkFound-phone/${this.cardNum}/${this.date}/${this.code}`)
+      if(!Validator.cardExpiry(this.date).status){
+        this.$toast("请输入正确的有效期")
+        return
+      }
+      if(!Validator.cardCaptcha(this.code).status){
+        this.$toast("请输入正确的卡验证码")
+        return
+      }
+      if(!Validator.bankNum(this.cardNum).status){
+        this.$toast("卡号错误")
+        this.$router.go(-1)
+        return
+      }
+      this.$router.push(`/sub/certification_checkFound-phone/${this.cardNum}/${this.date}/${this.code}`)
     }
   },
   mounted() {
@@ -60,7 +76,7 @@ export default {
 };
 </script>
 <style lang="scss" scoped>
-@import "../../assets/css/fun.scss";
+@import "../../assets/css/common.scss";
 .container {
   width: 100%;
   height: 100%;
@@ -133,7 +149,7 @@ export default {
     color: #fff;
     height: px2rem(80px);
     line-height: px2rem(80px);
-    background-color: #fec14d;
+    background-color: $baseColor;
   }
 }
 </style>

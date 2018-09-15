@@ -4,44 +4,63 @@
         <div class="header_left"  slot="left"></div>
         <div class="header_right"  slot="right">
           <div class="service"></div>
-          <div class="message"></div>
+          <div @click="toMessage" class="message"></div>
         </div>
       </mt-header>
       <div class="content">
           <div class="banner_box">
-            <img src="../../assets/img/home-banner.png" alt="">
+            <div class="swiper_box">
+              <swiper :options="bannerSwiperOption" ref="bannerSwiper">
+                <!-- slides -->
+                <swiper-slide v-for="img in banners" :key="img.sliderId">
+                  <img :src="$CONSTS.SERVERS.IMAGE +  '/' + img.sliderImg" alt="" height="100%">
+                </swiper-slide>
+                <!-- Optional controls -->
+                <!-- <div class="swiper-pagination"  slot="pagination"></div> -->
+              </swiper>
+              <!-- <img src="../../assets/img/home-banner.png" alt=""> -->
+            </div>
             <div class="message-box">
               <div class="message_img"></div>
-              <div class="message">张**完成一笔现金交易，获得100元现金奖励。</div>
+              <div class="message">
+                <swiper :options="noticesSwiperOption" ref="noticesSwiper">
+                  <!-- slides -->
+                  <swiper-slide v-for="(notice, index) in notices" :key="index">
+                    {{notice.titles}}元
+                  </swiper-slide>
+                  <!-- Optional controls -->
+                  <!-- <div class="swiper-pagination"  slot="pagination"></div> -->
+                </swiper>
+              </div>
             </div>
           </div>
 
           <div class="cards">
-            <div class="card" v-for="i in [1,2,3,4]" :key="i" >
+            <div class="card" v-for="card in cardList" :key="card.creditcardId" >
               <div class="header">
                 <div class="left">
-                  <img src="../../assets/img/home-citic-logo.png" alt="" class="bank_logo">
-                  <div class="bank_name">中信银行</div>
-                  <div class="user_name">鹿昆鹏 2048</div>
+                  <img :src="'http://' + card.logoUrl" alt="" class="bank_logo">
+                  <div class="bank_name">{{card.bank}}</div>
+                  <div class="user_name">{{card.name}} {{card.creditcard | cardNumLast4}}</div>
                 </div>
-                <div class="collection_btn" @click="repay(i)">我要收款</div>
+                <div class="collection_btn" @click="withdraw(card)">我要提现</div>
               </div>
-              <div class="card_content">
+              <div class="card_content" @click="cardDetail(card)">
                 <div class="left">
-                  <div class="left">05</div>
+                  <div class="left">{{card.repaymentDay - day}}</div>
                   <div class="right">
                     <div class="ch">天后到期</div>
-                    <div class="date">06-20</div>
+                    <div class="date">{{month}}-{{card.repaymentDay}}</div>
                   </div>
                   
                 </div>
                 <div class="right">
-                  <div class="num">12312.23</div>
+                  <div class="num">{{(card.billamount || "xx.xx") | moneyFixed2}}</div>
                   <div class="ch">本期应还</div>
                 </div>
               </div>
-              <div class="footer">
-                  智能还款
+              <div class="footer" @click="addPlan(card)">
+                  我要代还
               </div>
               <img src="../../assets/img/home-citic-logo.png" alt="" class="bank_logo_bg">
             </div>
@@ -52,7 +71,7 @@
             添加信用卡
           </div>
       </div>
-      <div class="red_packet">
+      <div class="red_packet" @click="redPacket">
         <img src="../../assets/img/home-packet.png" alt="">
       </div>
       <NameCertification :show.sync="showCer"></NameCertification>
@@ -62,9 +81,11 @@
 <script>
 import NameCertification from "components/uni-popup/NameCertification";
 import NameCertificationSuccess from "components/uni-popup/NameCertificationSuccess";
-import CONST from "../../config/CONST";
+import CONSTS from "config/CONST";
+import CardService from "services/card";
+import SystemService from "services/system";
 export default {
-  name:'index_home',
+  name: "index_home",
   components: {
     NameCertification,
     NameCertificationSuccess
@@ -72,51 +93,130 @@ export default {
   data() {
     return {
       title: this.$store.state.header.title,
-      showCer: true,
+      month: "",
+      day: "",
+      cardList: [],
+      banners: [],
+      notices: [],
+      showCer: false,
       showCerSuccss: false,
+
+      bannerSwiperOption: {
+        slidesPerView: "auto",
+        autoplay: true,
+        centeredSlides: true,
+        spaceBetween: 15
+      },
+      noticesSwiperOption: {
+        // direction: 'vertical',
+        slidesPerView: "auto",
+        autoplay: true,
+        centeredSlides: true,
+        spaceBetween: 15
+      }
     };
   },
-  methods: {
-    repay(param) {
-      this.$router.push(`/sub/repay_repay/${param}`)
+  computed: {
+    bannerSwiper() {
+      return this.$refs.bannerSwiper.swiper;
     },
-    addCredit(){
-      this.$router.push(`/sub/certification_checkFound-card`)
+    noticesSwiper() {
+      return this.$refs.noticesSwiper.swiper;
     }
   },
-  mounted() {
-    this.$nextTick(() => {
-      setTimeout(() => {
-        this.$loading.close()
-        // this.showCer = true
+  methods: {
+    redPacket() {
+      this.$router.push("/sub/shop_addRedPacket")
+    },
+    withdraw(card) {
+      this.$router.push({
+        path: "/sub/withdraw_withdraw",
+        query: {
+          bankName: card.bank,
+          creditCardNum: card.creditcard,
+          bankLogo: card.logoUrl
+        }
+      });
+    },
+    cardDetail(card) {
+      this.$router.push(`/sub/repay_card/${card.creditcardId}`);
+    },
+    addCredit() {
+      this.$router.push(`/sub/certification_checkFound-card`);
+    },
+    addPlan(card) {
+      this.$router.push({
+        path: "/sub/repay_addPlan",
+        query: {
+          bankName: card.bank,
+          creditCardNum: card.creditcard,
+          creditCardId: card.creditcardId,
+          bankLogo: card.logoUrl
+        }
+      });
+    },
+    toMessage() {
+      this.$router.push('/sub/system_message')
+    }
+  },
+  created() {
+    let month = new Date().getMonth() + 1;
+    this.month = month.length > 1 ? month : "0" + month;
+    this.day = new Date().getDate();
 
-        let certificationSuccess = window.localStorage.getItem(CONST.LOCALSCORAGE.CERTIFICATION_SUCCESS)
+    CardService.getCreditcardList()
+      .then(res => {
+        this.cardList = res.creditcards;
+        this.$loading.close();
+        // 实名认证
+        if (
+          JSON.parse(localStorage.getItem(CONSTS.LOCALSTORAGE.USER_INFO))
+            .isPass == 0
+        ) {
+          this.showCer = true;
+        }
+      })
+      .catch(err => {
+        this.$toast(err.msg);
+      });
+    SystemService.getSwiperImg()
+      .then(res => {
+        this.banners = res.small;
+      })
+      .catch(err => {});
+    SystemService.getNotices()
+      .then(res => {
+        this.notices = res.msgRecive;
+      })
+      .catch(err => {});
+  },
+  mounted() {
+    setTimeout(() => {
+      let certificationSuccess = window.localStorage.getItem(
+        CONSTS.LOCALSTORAGE.CERTIFICATION_SUCCESS
+      );
       if (
         certificationSuccess &&
-        certificationSuccess === CONST.LOCALSCORAGE.CERTIFICATION_SUCCESS
+        certificationSuccess === CONSTS.LOCALSTORAGE.CERTIFICATION_SUCCESS
       ) {
-        this.showCer = false
         window.localStorage.removeItem(
-          CONST.LOCALSCORAGE.CERTIFICATION_SUCCESS
+          CONSTS.LOCALSTORAGE.CERTIFICATION_SUCCESS
         );
-        this.showCerSuccss = true
-
+        this.showCerSuccss = true;
       }
-      }, 1000)
-
-      
-    })
+    }, 300);
   }
-}
+};
 </script>
 <style lang="scss" scoped>
-@import "../../assets/css/fun.scss";
+@import "../../assets/css/common.scss";
 .header {
   background-color: #fff;
   font-size: px2rem(32px);
   color: black;
   display: flex;
   align-items: center;
+  z-index: 9999;
 
   .header_left {
     height: 40px;
@@ -143,7 +243,7 @@ export default {
     .message {
       height: 40px;
       width: 40px;
-
+      
       background-image: url("../../assets/img/home-message.png");
       background-size: 22px auto;
       background-position: center center;
@@ -156,11 +256,27 @@ export default {
   padding-top: px2rem(40px);
   .banner_box {
     background-color: #fff;
-    padding: px2rem(44px) px2rem(44px) 0 px2rem(44px);
+    padding: px2rem(44px) px2rem(0px) 0 px2rem(0px);
+    .swiper_box {
+      height: px2rem(215px);
+      width: 100%;
+      .swiper-container {
+        width: 100%;
+        height: 100%;
+      }
 
+      .swiper-slide:nth-child(n) {
+        text-align: center;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 85% !important;
+      }
+    }
     .message-box {
       display: flex;
       align-items: center;
+      padding: 0 px2rem(20px) 0 px2rem(44px);
       .message_img {
         height: 40px;
         width: 80px;
@@ -171,18 +287,28 @@ export default {
         background-repeat: no-repeat;
       }
       .message {
-        display: flex;
         height: 18px;
-        width: px2rem(460px);
+        width: px2rem(500px);
         align-items: center;
         padding-left: 8px;
         color: #3c3c3c;
         font-size: px2rem(22px);
         border-left: 1px solid #ccc;
-        word-break: keep-all;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
+        user-select: none;
+
+        .swiper-container {
+          width: 100%;
+          height: 100%;
+        }
+        .swiper-slide {
+          text-align: left;
+          color: #3c3c3c;
+          font-size: px2rem(22px);
+          word-break: keep-all;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
       }
     }
   }
@@ -199,6 +325,7 @@ export default {
       padding: px2rem(30px);
       overflow: hidden;
       margin-bottom: px2rem(28px);
+      user-select: none;
       .header {
         display: flex;
         justify-content: space-between;
@@ -223,7 +350,7 @@ export default {
 
         .collection_btn {
           height: 30px;
-          border-radius: px2rem(16px);
+          border-radius: px2rem(10px);
           display: flex;
           font-size: px2rem(24px);
           align-items: center;
@@ -278,6 +405,7 @@ export default {
       .footer {
         font-size: px2rem(32px);
         color: #e83454;
+        text-align: center;
       }
 
       .bank_logo_bg {
@@ -293,6 +421,7 @@ export default {
     display: flex;
     align-items: center;
     justify-content: center;
+    user-select: none;
 
     img {
       height: px2rem(30px);

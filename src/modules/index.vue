@@ -1,11 +1,11 @@
 <template>
-    <div>
+    <div class="index_root">
         <div class="tab_container">
-          <keep-alive>
+          <!-- <keep-alive> -->
             <router-view></router-view>
-          </keep-alive>
+          <!-- </keep-alive> -->
         </div>
-        <mt-tabbar  fixed>
+        <mt-tabbar class="bottom_tabs"  fixed>
           <mt-tab-item id="home" @click.native="changeTab('home')">
               <img v-if="selected == 'home'" slot="icon" src="../assets/img/tab-home-active.png">
               <img v-else slot="icon" src="../assets/img/tab-home.png">
@@ -30,40 +30,62 @@
     </div>
 </template>
 <script>
-import {mapGetters} from 'vuex'
+import {mapGetters, mapState} from 'vuex'
+import UserService from '../services/user'
+import CONSTS from '../config/CONST'
 export default {
   name:'index',
   data() {
     return {
-      // title: this.$store.getters.getTitle,
-      selected: "home"
     };
   },
   computed: {
-    ...mapGetters({
-      title: "getTitle"
+    ...mapState({
+      title: state => state.header.title,
+      selected: state => state.tab
     })
   },
   methods: {
     changeTab(tab) {
-      this.selected = tab;
       this.$router.push(`/index/${tab}`)
     }
   },
   mounted() {
-    this.$nextTick(() => {
-      setTimeout(() => {
-        this.$loading.close()
-      }, 3000);
-    });
+
+    let userInfo = this.$getUserInfo();
+    UserService.identityInfo()
+      .then(res => {
+        Object.assign(userInfo, res.object);
+        localStorage.setItem(
+          CONSTS.LOCALSTORAGE.USER_INFO,
+          JSON.stringify(userInfo)
+        );
+      })
+      .catch(err => {
+        this.$toast(err.msg);
+      });
+
+    // this.$nextTick(() => {
+    //   setTimeout(() => {
+    //     this.$loading.close()
+    //   }, 3000);
+    // });
   }
 };
 </script>
 <style lang="scss" scoped>
-@import "../assets/css/fun.scss";
-.tab_container {
-  padding-bottom: 55px;
+@import "../assets/css/common.scss";
+.index_root{
+  padding-bottom: px2rem(110px);
+  
+  .tab_container {
+  
+  }
+.bottom_tabs{
+  user-select: none;
 }
+}
+
 </style>
 
 
